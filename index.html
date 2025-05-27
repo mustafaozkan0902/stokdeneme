@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Depo Stok Takip</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      margin-bottom: 20px;
+      background: #f3f3f3;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 7px;
+      box-sizing: border-box;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: #007bff;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Depo Stok Takip</h1>
+
+  <form id="product-form">
+    <label for="product-name">Ürün Adı:</label>
+    <input type="text" id="product-name" required />
+
+    <label for="product-quantity">Miktar:</label>
+    <input type="number" id="product-quantity" min="1" required />
+
+    <label for="product-desc">Açıklama:</label>
+    <textarea id="product-desc" rows="2"></textarea>
+
+    <button type="submit">Ürün Ekle</button>
+  </form>
+
+  <table id="product-table">
+    <thead>
+      <tr>
+        <th>Ürün Adı</th>
+        <th>Miktar</th>
+        <th>Açıklama</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Ürünler buraya eklenecek -->
+    </tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('product-form');
+    const tableBody = document.querySelector('#product-table tbody');
+
+    // Ürünleri localStorage'dan yükle
+    let products = JSON.parse(localStorage.getItem('depoStok')) || [];
+
+    // Ürünleri tabloya ekle
+    function renderProducts() {
+      tableBody.innerHTML = '';
+      products.forEach((p, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.quantity}</td>
+          <td>${p.desc || ''}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    renderProducts();
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('product-name').value.trim();
+      const quantity = parseInt(document.getElementById('product-quantity').value);
+      const desc = document.getElementById('product-desc').value.trim();
+
+      if (!name || quantity < 1) {
+        alert('Lütfen geçerli bir ürün adı ve miktar girin.');
+        return;
+      }
+
+      products.push({ name, quantity, desc });
+      localStorage.setItem('depoStok', JSON.stringify(products));
+      renderProducts();
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>
