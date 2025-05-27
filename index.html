@@ -1,113 +1,137 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Depo Stok Takip - Şantiye Elektrik</title>
-  <style>
-    /* Önceki stil kodları aynen kalsın, modal için eklenenler: */
-    /* Modal arka plan */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-    }
-    /* Modal içerik kutusu */
-    .modal-content {
-      background-color: #fefefe;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-    }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .close:hover {
-      color: black;
-    }
-    .product-list {
-      max-height: 200px;
-      overflow-y: auto;
-      margin-top: 10px;
-    }
-    .product-list label {
-      display: block;
-      margin: 5px 0;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Depo Stok Takip - Kullanıcı & Çıkış & Ürün Seçimi</title>
+<style>
+  body { font-family: Arial; max-width: 700px; margin: 20px auto; }
+  #login-section, #main-section { margin-top: 20px; }
+  #main-section { display: none; }
+  button { padding: 7px 14px; margin-top: 10px; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  .low-stock { background: #ffcccc; }
+  .delete-btn { background: #dc3545; color: white; border: none; padding: 4px 8px; cursor: pointer; }
+  .delete-btn:disabled { background: #999; cursor: not-allowed; }
+
+  /* Modal için */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+  }
+  .modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+  }
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .close:hover {
+    color: black;
+  }
+  .product-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+  .product-list label {
+    display: block;
+    margin: 5px 0;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
-  <h1>Depo Stok Takip - Şantiye Elektrik</h1>
 
-  <div id="summary">Toplam Ürün: 0 | Toplam Miktar: 0</div>
+<h1>Depo Stok Takip</h1>
 
-  <input type="text" id="search" placeholder="Ürün adı ara..." />
+<!-- Kullanıcı Girişi -->
+<div id="login-section">
+  <h3>Kullanıcı Seçin</h3>
+  <button onclick="login('user1')">1. Kullanıcı (Silme ve Ekleme Yetkili)</button>
+  <button onclick="login('user2')">2. Kullanıcı (Sadece Ekleme Yetkili)</button>
+</div>
+
+<!-- Ana Bölüm -->
+<div id="main-section">
+  <div><strong>Giriş yapan:</strong> <span id="logged-user"></span></div>
 
   <form id="product-form">
-    <label for="product-name">Ürün:</label>
-    <div style="display:flex; gap:10px;">
-      <input type="text" id="product-name" readonly placeholder="Ürün seçmek için butona tıklayın" required />
-      <button type="button" id="open-modal-btn">Ürün Seç</button>
-    </div>
+    <label>Ürün:
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="product-name" readonly placeholder="Ürün seçmek için butona tıklayın" required />
+        <button type="button" id="open-modal-btn">Ürün Seç</button>
+      </div>
+    </label><br><br>
 
-    <label for="product-category">Kategori:</label>
-    <select id="product-category" required>
-      <option value="">Kategori seçin</option>
-      <option value="Vida">Vida</option>
-      <option value="Somun">Somun</option>
-      <option value="Tava">Tava</option>
-      <option value="Busbar">Busbar</option>
-      <option value="Kablo">Kablo</option>
-      <option value="Kablo Kanalı">Kablo Kanalı</option>
-      <option value="Taahhüt Malzemesi">Taahhüt Malzemesi</option>
-    </select>
+    <label>Kategori:
+      <select id="product-category" required>
+        <option value="">Seçiniz</option>
+        <option>Vida</option>
+        <option>Somun</option>
+        <option>Tava</option>
+        <option>Busbar</option>
+        <option>Kablo</option>
+        <option>Kablo Kanalı</option>
+        <option>Taahhüt Malzemesi</option>
+      </select>
+    </label><br><br>
 
-    <label for="product-quantity">Miktar:</label>
-    <input type="number" id="product-quantity" min="1" required />
+    <label>İşlem Tipi:
+      <select id="transaction-type" required>
+        <option value="giris">Giriş</option>
+        <option value="cikis">Çıkış</option>
+      </select>
+    </label><br><br>
 
-    <label for="product-desc">Açıklama:</label>
-    <textarea id="product-desc" rows="2"></textarea>
+    <label>Miktar:
+      <input type="number" id="product-quantity" min="1" required />
+    </label><br><br>
 
-    <button type="submit">Ürün Ekle</button>
+    <label>Açıklama:
+      <textarea id="product-desc" rows="2" placeholder="Opsiyonel"></textarea>
+    </label><br><br>
+
+    <button type="submit">İşlemi Kaydet</button>
   </form>
 
-  <table id="product-table">
+  <h3>Stok Listesi</h3>
+  <table>
     <thead>
-      <tr>
-        <th>Ürün Adı</th>
-        <th>Kategori</th>
-        <th>Miktar</th>
-        <th>Açıklama</th>
-        <th>İşlem</th>
-      </tr>
+      <tr><th>Ürün Adı</th><th>Kategori</th><th>Mevcut Miktar</th><th>Açıklama</th><th>İşlem</th></tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="stock-table-body"></tbody>
   </table>
+</div>
 
-  <!-- Modal Başlangıcı -->
-  <div id="product-modal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="modal-close">&times;</span>
-      <h3>Ürün Seçin</h3>
-      <div class="product-list" id="modal-product-list">
-        <!-- Ürünler buraya JS ile eklenecek -->
-      </div>
-      <button id="modal-select-btn">Seçimi Onayla</button>
+<!-- Modal Başlangıcı -->
+<div id="product-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="modal-close">&times;</span>
+    <h3>Ürün Seçin</h3>
+    <div class="product-list" id="modal-product-list">
+      <!-- Ürünler JS ile gelecek -->
     </div>
+    <button id="modal-select-btn">Seçimi Onayla</button>
   </div>
+</div>
 
 <script>
+  // Ürün listesi (şantiye elektrik ürünleri)
   const productsInModal = [
     "Kablo 3x2.5 mm²",
     "Kablo 5x6 mm²",
@@ -126,6 +150,7 @@
     "Topraklama Elektrodu"
   ];
 
+  // DOM Elementleri
   const modal = document.getElementById('product-modal');
   const openModalBtn = document.getElementById('open-modal-btn');
   const modalClose = document.getElementById('modal-close');
@@ -133,7 +158,28 @@
   const modalSelectBtn = document.getElementById('modal-select-btn');
   const productNameInput = document.getElementById('product-name');
 
-  // Modal ürün listesini oluştur
+  // Kullanıcı ve stok bilgileri
+  let currentUser = null;
+  let stock = JSON.parse(localStorage.getItem('depoStock')) || [];
+
+  const loginSection = document.getElementById('login-section');
+  const mainSection = document.getElementById('main-section');
+  const loggedUserSpan = document.getElementById('logged-user');
+  const stockTableBody = document.getElementById('stock-table-body');
+  const form = document.getElementById('product-form');
+
+  // Kullanıcı Girişi Fonksiyonu
+  function login(user) {
+    currentUser = user;
+    loginSection.style.display = 'none';
+    mainSection.style.display = 'block';
+    loggedUserSpan.textContent = (user === 'user1') 
+      ? "1. Kullanıcı (Silme ve Ekleme Yetkili)" 
+      : "2. Kullanıcı (Sadece Ekleme Yetkili)";
+    renderStock();
+  }
+
+  // Modal listesini oluştur
   function populateModalList() {
     modalProductList.innerHTML = '';
     productsInModal.forEach((product, i) => {
@@ -162,7 +208,7 @@
     }
   });
 
-  // Seçimi onaylama ve modal kapatma
+  // Modal seçim onayı
   modalSelectBtn.addEventListener('click', () => {
     const selected = document.querySelector('input[name="modal-product"]:checked');
     if (selected) {
@@ -171,87 +217,39 @@
     }
   });
 
-  // Diğer form ve tablo kodları (localStorage, listeleme, ekleme, silme, arama) burada olacak
-  // Önceki örnek koddan devam edelim:
-
-  const form = document.getElementById('product-form');
-  const tableBody = document.querySelector('#product-table tbody');
-  const searchInput = document.getElementById('search');
-  const summary = document.getElementById('summary');
-
-  let products = JSON.parse(localStorage.getItem('depoStok')) || [];
-
-  function updateSummary() {
-    const totalProducts = products.length;
-    const totalQuantity = products.reduce((acc, p) => acc + p.quantity, 0);
-    summary.textContent = `Toplam Ürün: ${totalProducts} | Toplam Miktar: ${totalQuantity}`;
-  }
-
-  function renderProducts(filter = '') {
-    tableBody.innerHTML = '';
-    const filtered = products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
-    filtered.forEach((p, i) => {
-      const row = document.createElement('tr');
-      if (p.quantity < 5) row.classList.add('low-stock');
-      row.innerHTML = `
-        <td>${p.name}</td>
-        <td>${p.category}</td>
-        <td>${p.quantity}</td>
-        <td>${p.desc || ''}</td>
-        <td><button class="delete-btn" data-index="${i}">Sil</button></td>
+  // Stok tablosunu çiz
+  function renderStock() {
+    stockTableBody.innerHTML = '';
+    stock.forEach((item, i) => {
+      const tr = document.createElement('tr');
+      if (item.quantity < 5) tr.classList.add('low-stock');
+      tr.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.category}</td>
+        <td>${item.quantity}</td>
+        <td>${item.desc || ''}</td>
+        <td>
+          <button class="delete-btn" data-index="${i}" ${currentUser === 'user1' ? '' : 'disabled'}>Sil</button>
+        </td>
       `;
-      tableBody.appendChild(row);
+      stockTableBody.appendChild(tr);
     });
   }
 
-  renderProducts();
-  updateSummary();
-
+  // Form submit (giriş/çıkış işlemi)
   form.addEventListener('submit', e => {
     e.preventDefault();
 
     const name = productNameInput.value.trim();
     const category = document.getElementById('product-category').value;
+    const transaction = document.getElementById('transaction-type').value;
     const quantity = parseInt(document.getElementById('product-quantity').value);
     const desc = document.getElementById('product-desc').value.trim();
 
-    if (!name) {
-      alert('Lütfen ürün seçin.');
-      return;
-    }
-    if (!category) {
-      alert('Lütfen kategori seçin.');
-      return;
-    }
-    if (quantity < 1 || isNaN(quantity)) {
-      alert('Lütfen geçerli bir miktar girin.');
+    if (!name || !category || quantity < 1) {
+      alert('Lütfen tüm alanları doğru doldurun.');
       return;
     }
 
-    products.push({ name, category, quantity, desc });
-    localStorage.setItem('depoStok', JSON.stringify(products));
-
-    renderProducts(searchInput.value);
-    updateSummary();
-
-    form.reset();
-    productNameInput.value = '';
-  });
-
-  tableBody.addEventListener('click', e => {
-    if (e.target.classList.contains('delete-btn')) {
-      const index = e.target.getAttribute('data-index');
-      products.splice(index, 1);
-      localStorage.setItem('depoStok', JSON.stringify(products));
-      renderProducts(searchInput.value);
-      updateSummary();
-    }
-  });
-
-  searchInput.addEventListener('input', () => {
-    renderProducts(searchInput.value);
-    updateSummary();
-  });
-</script>
-</body>
-</html>
+    // Stokta bu ürün var mı?
+    const existingIndex = stock.findIndex(p => p.name === name
