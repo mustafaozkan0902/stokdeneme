@@ -51,7 +51,6 @@
     margin-bottom: 15px;
     color: #004d99;
   }
-  /* Form stili */
   form label {
     display: block;
     margin-bottom: 10px;
@@ -59,8 +58,7 @@
   }
   form input[type="text"],
   form input[type="number"],
-  form select,
-  form textarea {
+  form select {
     width: 100%;
     padding: 8px 12px;
     border: 2px solid #d1d9e6;
@@ -70,8 +68,7 @@
   }
   form input[type="text"]:focus,
   form input[type="number"]:focus,
-  form select:focus,
-  form textarea:focus {
+  form select:focus {
     border-color: #007bff;
     outline: none;
     background: #e6f0ff;
@@ -134,9 +131,6 @@
   }
   tr:nth-child(even) {
     background-color: #f6f9fc;
-  }
-  tr.low-stock {
-    background-color: #ffe3e3 !important;
   }
   .delete-btn {
     background: #dc3545;
@@ -287,4 +281,28 @@
     right: 12px;
     top: 10px;
     font-size: 28px;
-    font-weight
+    font-weight: 700;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  #login-modal .close-modal:hover {
+    color: #444;
+  }
+</style>
+</head>
+<body>
+
+<h1>Depo Stok Takip</h1>
+
+<!-- Kullanıcı seçimi -->
+<div id="login-section">
+  <h3>Kullanıcı Seçin</h3>
+  <button data-user="user1">1. Kullanıcı (Silme ve Ekleme Yetkili)</button>
+  <button data-user="user2">2. Kullanıcı (Sadece Ekleme Yetkili)</button>
+</div>
+
+<!-- Şifre modalı -->
+<div id="login-modal">
+  <div class="modal-content">
+    <span class
