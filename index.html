@@ -49,6 +49,9 @@
     .login-box {
       margin-top: 30px;
     }
+    .active-user {
+      background-color: #2ecc71 !important;
+    }
   </style>
 </head>
 <body>
@@ -56,8 +59,8 @@
 
   <div id="login-section">
     <h3>Kullanıcı Seçin</h3>
-    <button onclick="login('user1')">1. Kullanıcı (Yönetici)</button>
-    <button onclick="login('user2')">2. Kullanıcı</button>
+    <button id="btn-user1" onclick="login('user1')">1. Kullanıcı (Yönetici)</button>
+    <button id="btn-user2" onclick="login('user2')">2. Kullanıcı</button>
     <div class="login-box">
       <input type="password" id="password-input" placeholder="Şifre" />
       <button onclick="checkPassword()">Giriş Yap</button>
@@ -71,7 +74,7 @@
         <option value="Kablo Tavası">Kablo Tavası</option>
         <option value="1.5 H07Z1-U mavi">1.5 H07Z1-U mavi</option>
       </select>
-      <input type="number" id="quantity" placeholder="Adet" required />
+      <input type="number" id="quantity" placeholder="Adet" required min="1" value="1" />
       <button type="button" onclick="submitAction('in')">Giriş</button>
       <button type="button" onclick="submitAction('out')">Çıkış</button>
     </form>
@@ -91,6 +94,9 @@
 
     function login(user) {
       selectedUser = user;
+      document.getElementById('btn-user1').classList.remove('active-user');
+      document.getElementById('btn-user2').classList.remove('active-user');
+      document.getElementById(`btn-${user}`).classList.add('active-user');
     }
 
     function checkPassword() {
@@ -107,11 +113,20 @@
       const name = document.getElementById('product-name').value;
       const qty = parseInt(document.getElementById('quantity').value);
       if (!stock[name]) stock[name] = 0;
-      if (action === 'in') stock[name] += qty;
-      else stock[name] -= qty;
+
+      if (action === 'in') {
+        stock[name] += qty;
+      } else {
+        if (stock[name] - qty < 0) {
+          alert('Stok eksiye düşemez!');
+          return;
+        }
+        stock[name] -= qty;
+      }
 
       updateTable();
       document.getElementById('stock-form').reset();
+      document.getElementById('quantity').value = 1;
     }
 
     function updateTable() {
